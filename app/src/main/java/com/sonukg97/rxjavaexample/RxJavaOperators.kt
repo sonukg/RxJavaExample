@@ -4,6 +4,7 @@ import android.util.Log
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Observer
+import io.reactivex.rxjava3.core.SingleObserver
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
@@ -11,6 +12,12 @@ import java.util.concurrent.TimeUnit
 val list = mutableListOf(1,2,3,4,5,6,7,8,9,10)
 val array = arrayOf(1,2,3,4,5)
 val list2 = mutableListOf("Sonu","Rohit","Ronit","Ram","Rohan")
+val userList = mutableListOf<User>(
+    User(1,"Sonu","william.paterson@my-own-personal-domain.com",22),
+    User(2,"Rohit","james.francis.byrnes@example-pet-store.com",22),
+    User(3,"Ronit","ronit876@hotmail.com",22),
+    User(4,"Ram","Ram1989@gmail.com",25),)
+
 val schedulers =Schedulers.io()
 val TAG = MainActivity::class.java.simpleName
 fun justOperator(){
@@ -194,6 +201,318 @@ fun intervalOperator(){
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe(observer)
 
+}
+
+fun timerOperator(){
+    val observable = Observable.timer(5,TimeUnit.SECONDS)
+    Log.d(TAG,"List From timer Operator")
+    val observer = object : Observer<Long>{
+        override fun onSubscribe(d: Disposable) {
+            Log.d(TAG,"onSubscribe")
+        }
+
+        override fun onNext(t: Long) {
+            Log.d(TAG,"onNext : $t")
+            getLocationsData()
+        }
+
+        override fun onError(e: Throwable) {
+            Log.d(TAG,"onError : ${e.message}")
+        }
+
+        override fun onComplete() {
+            Log.d(TAG,"onComplete")
+        }
+    }
+    observable.subscribeOn(schedulers)
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(observer)
+
+}
+
+fun createOperator(){
+    val observable = Observable.create<Int> {
+        try {
+            for (i in list){
+                it.onNext(i * 5)
+                Thread.sleep(1000)
+            }
+
+            it.onComplete()
+
+        }catch (e:Exception){
+            it.onError(e)
+        }
+    }
+
+    Log.d(TAG,"Data from createOperator")
+
+    val observer = object : Observer<Int>{
+        override fun onSubscribe(d: Disposable) {
+            Log.d(TAG,"onSubscribe")
+        }
+
+        override fun onNext(t: Int) {
+            Log.d(TAG,"onNext : $t")
+        }
+
+        override fun onError(e: Throwable) {
+            Log.d(TAG,"onError : ${e.message}")
+        }
+
+        override fun onComplete() {
+            Log.d(TAG,"onComplete")
+        }
+    }
+    observable.subscribeOn(schedulers)
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(observer)
+}
+
+fun filterOperator(){
+    val observable = Observable.fromIterable(userList).filter { user -> user.age > 22 }
+    Log.d(TAG,"Data from filterOperator")
+    val observer = object : Observer<User>{
+        override fun onSubscribe(d: Disposable) {
+            Log.d(TAG,"onSubscribe")
+        }
+
+        override fun onNext(t: User) {
+            Log.d(TAG,"onNext : $t")
+        }
+
+        override fun onError(e: Throwable) {
+            Log.d(TAG,"onError : ${e.message}")
+        }
+
+        override fun onComplete() {
+            Log.d(TAG,"onComplete")
+        }
+    }
+
+    observable.subscribeOn(schedulers)
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(observer)
+
+}
+
+fun lastOperator(){
+    val observable = Observable.fromIterable(userList).last(User(1,"Sonu Kumar","sonukg97@gmail.com",23))
+    Log.d(TAG,"Data from lastOperator")
+    val observer = object : SingleObserver<User>{
+        override fun onSubscribe(d: Disposable) {
+            Log.d(TAG,"onSubscribe")
+        }
+
+        override fun onSuccess(t: User) {
+            Log.d(TAG,"onNext : $t")
+        }
+
+        override fun onError(e: Throwable) {
+            Log.d(TAG,"onError : ${e.message}")
+        }
+    }
+    observable.subscribeOn(schedulers)
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(observer)
+}
+
+fun distinctOperator(){
+    val observable = Observable.fromIterable(userList).distinct{age -> age.age}
+    Log.d(TAG,"Data from distinct Operator")
+    val observer = object : Observer<User>{
+        override fun onSubscribe(d: Disposable) {
+            Log.d(TAG,"onSubscribe")
+        }
+
+        override fun onNext(t: User) {
+            Log.d(TAG,"onNext : $t")
+        }
+
+        override fun onError(e: Throwable) {
+            Log.d(TAG,"onError : ${e.message}")
+        }
+
+        override fun onComplete() {
+            Log.d(TAG,"onComplete")
+        }
+    }
+    observable.subscribeOn(schedulers)
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(observer)
+}
+
+fun skipOperator(){
+    val observable0 = Observable.fromIterable(userList).skip(2)
+    val observable1 = Observable.fromIterable(userList).skip(2).distinct{age -> age.age}
+    val observable2 = Observable.fromIterable(userList).skipLast(2)
+    val observable3 = Observable.fromIterable(userList).skipLast(3,TimeUnit.MILLISECONDS)
+    Log.d(TAG,"Data from skipOperator")
+    val observer = object : Observer<User>{
+        override fun onSubscribe(d: Disposable) {
+            Log.d(TAG,"onSubscribe")
+        }
+
+        override fun onNext(t: User) {
+            Log.d(TAG,"onNext : $t")
+        }
+
+        override fun onError(e: Throwable) {
+            Log.d(TAG,"onError : ${e.message}")
+        }
+
+        override fun onComplete() {
+            Log.d(TAG,"onComplete")
+        }
+    }
+    observable0.subscribeOn(schedulers)
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(observer)
+
+    observable1.subscribeOn(schedulers)
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(observer)
+
+    observable2.subscribeOn(schedulers)
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(observer)
+
+    observable3.subscribeOn(schedulers)
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(observer)
+}
+
+fun bufferOperator(){
+    val observable = Observable.fromIterable(userList).buffer(2)
+    Log.d(TAG,"Data from distinctOperator")
+    val observer = object : Observer<MutableList<User>>{
+        override fun onSubscribe(d: Disposable) {
+            Log.d(TAG,"onSubscribe")
+        }
+
+        override fun onNext(t: MutableList<User>) {
+            Log.d(TAG,"onNext : $t")
+        }
+
+        override fun onError(e: Throwable) {
+            Log.d(TAG,"onError : ${e.message}")
+        }
+
+        override fun onComplete() {
+            Log.d(TAG,"onComplete")
+        }
+    }
+    observable.subscribeOn(schedulers)
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(observer)
+}
+
+fun mapOperator(){
+    val observable0 = Observable.fromIterable(list).map { it *10 }
+    val observable1 = Observable.fromIterable(userList).map { user-> User(user.id,user.name,user.email,24,) }
+    Log.d(TAG,"Data from distinctOperator")
+    val observer0 = object : Observer<Int>{
+        override fun onSubscribe(d: Disposable) {
+            Log.d(TAG,"onSubscribe")
+        }
+
+        override fun onNext(t: Int) {
+            Log.d(TAG,"onNext : $t")
+        }
+
+        override fun onError(e: Throwable) {
+            Log.d(TAG,"onError : ${e.message}")
+        }
+
+        override fun onComplete() {
+            Log.d(TAG,"onComplete")
+        }
+    }
+
+    val observer1 = object : Observer<User>{
+        override fun onSubscribe(d: Disposable) {
+            Log.d(TAG,"onSubscribe")
+        }
+
+        override fun onNext(t: User) {
+            Log.d(TAG,"onNext : $t")
+        }
+
+        override fun onError(e: Throwable) {
+            Log.d(TAG,"onError : ${e.message}")
+        }
+
+        override fun onComplete() {
+            Log.d(TAG,"onComplete")
+        }
+    }
+    observable0.subscribeOn(schedulers)
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(observer0)
+
+    observable1.subscribeOn(schedulers)
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(observer1)
+}
+
+fun flatMapOperator(){
+    val observable = Observable.fromIterable(userList)
+    observable.flatMap { user-> fetchUser(user.id).subscribeOn(schedulers) }
+        .subscribeOn(schedulers)
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe({userList ->
+            Log.d(TAG,"Received Data $userList")
+        },{error->
+            Log.d(TAG,"onError: ${error.message}")
+        },{
+            Log.d(TAG,"onComplete")
+        })
+}
+
+fun groupByOperator(){
+    val observable = Observable.fromIterable(userList)
+    val observable1 = Observable.fromIterable(userList)
+    /*observable.groupBy { user-> user.age }
+        .subscribeOn(schedulers)
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe({groupbyObservable ->
+            Log.d(TAG,"Group ${groupbyObservable.key}")
+            groupbyObservable.subscribe{user->
+                Log.d(TAG, "User: ${user.name} (Age: ${user.age})")
+            }
+
+        },{error->
+            Log.d(TAG,"onError: ${error.message}")
+        },{
+            Log.d(TAG,"onComplete")
+        })*/
+
+    observable1
+        .groupBy { user -> user.age }
+        .flatMap { groupedObservable ->
+            groupedObservable
+                .toList()
+                .toObservable()
+                .map { users ->
+                    "Group ${groupedObservable.key}: ${users.joinToString(", ") { it.name }}"
+                }
+        }
+        .subscribe(
+            { groupInfo ->
+                Log.d(TAG, groupInfo)
+            },
+            { error ->
+                Log.d(TAG, "Error: ${error.message}")
+            },
+            {
+                Log.d(TAG, "Completed")
+            }
+        )
+}
+
+fun fetchUser(id:Int):Observable<User>{
+    return Observable.fromIterable(userList)
+        .filter { it.id == id }
 }
 
 fun getLocationsData(){

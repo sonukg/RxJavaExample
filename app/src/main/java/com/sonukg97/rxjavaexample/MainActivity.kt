@@ -27,7 +27,17 @@ class MainActivity : ComponentActivity() {
                 //fromIterableOperator()
                 //rangeOperator()
                 //repeatOperator()
-                intervalOperator()
+                //intervalOperator()
+                //timerOperator()
+                //createOperator()
+                //filterOperator()
+                //lastOperator()
+                //distinctOperator()
+                //skipOperator()
+                //bufferOperator()
+                //mapOperator()
+                //flatMapOperator()
+                groupByOperator()
             }
         }
     }
