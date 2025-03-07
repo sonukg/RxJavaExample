@@ -11,9 +11,12 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Observer
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.core.SingleObserver
+import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.observers.DisposableObserver
 import io.reactivex.rxjava3.schedulers.Schedulers
 
+lateinit var disposable : Disposable
 
 fun createObservable(){
     val observable = Observable.create<Int> { emitter ->
@@ -161,6 +164,46 @@ fun createFlowableObservable(){
         )
 }
 
+fun createDisposableObservable() {
+    val observable = Observable.create<Int> { emitter ->
+        try {
+            for (i in 1..1000000) {
+                if (emitter.isDisposed) {
+                    Log.d(TAG, "Emitter disposed, stopping emission")
+                    return@create
+                }
+                emitter.onNext(i)
+                Thread.sleep(100)
+            }
+            emitter.onComplete()
+        } catch (e: Exception) {
+            emitter.onError(e)
+        }
+    }
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .takeWhile { !compositeDisposable.isDisposed }
+
+    val observer = object : DisposableObserver<Int>() {
+        override fun onStart() {
+            Log.d(TAG, "onSubscribe")
+        }
+
+        override fun onNext(t: Int) {
+            Log.d(TAG, "onNext : $t")
+        }
+
+        override fun onError(e: Throwable) {
+            Log.d(TAG, "onError : ${e.message}")
+        }
+
+        override fun onComplete() {
+            Log.d(TAG, "onComplete")
+        }
+    }
+
+    compositeDisposable.add(observable.subscribeWith(observer))
+}
 
 fun getLocations(){
     //throw Exception("Something went wrong")
@@ -169,3 +212,4 @@ fun getLocations(){
     val longitude = 220.011
     Log.d(TAG,"Latitute : $latitute Longitude : $longitude")
 }
+
