@@ -37,7 +37,21 @@ class MainActivity : ComponentActivity() {
                 //bufferOperator()
                 //mapOperator()
                 //flatMapOperator()
-                groupByOperator()
+                //groupByOperator()
+                //mergeOperator()
+                //concatOperator()
+                //startWithOperator()
+                //zipOperator()
+                //createObservable()
+                //createSingleObservable()
+                //createMaybeObservable()
+                //createCompletableObservable()
+                //createFlowableObservable()
+                flowableBufferBackpressure()
+                //flowableDropBackpressure()
+                //flowableLatestBackpressure()
+                //flowableErrorBackpressure()
+                //flowableMissingBackpressure()
             }
         }
     }

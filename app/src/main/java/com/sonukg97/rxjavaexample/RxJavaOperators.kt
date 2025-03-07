@@ -18,6 +18,16 @@ val userList = mutableListOf<User>(
     User(3,"Ronit","ronit876@hotmail.com",22),
     User(4,"Ram","Ram1989@gmail.com",25),)
 
+val userDetailsList = mutableListOf<UserDetails>(
+    UserDetails(9876543210,987654420,"Ashok Vihar","Delhi","Delhi",110092,"India"),
+    UserDetails(9876543910,987654620,"Palak Vihar","Delhi","Delhi",110082,"India"),
+    UserDetails(9876543810,987654220,"Ramji Nagar","Delhi","Delhi",110072,"India"),
+    UserDetails(9876543710,987654320,"Salimar bag","Delhi","Delhi",110032,"India")
+)
+
+val defaultUser = User(0, "Default User", "default@example.com", 0)
+val defaultUserDetails = UserDetails(0, 0, "Default Address", "Default City", "Default State", 0, "Default Country")
+
 val schedulers =Schedulers.io()
 val TAG = MainActivity::class.java.simpleName
 fun justOperator(){
@@ -508,6 +518,104 @@ fun groupByOperator(){
                 Log.d(TAG, "Completed")
             }
         )
+}
+
+fun mergeOperator(){
+    val observable = Observable.merge(
+        getUser(),
+        getUserDetails()
+    )
+
+    observable
+        .subscribeOn(schedulers)
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(
+            { all ->
+                Log.d(TAG, all.toString())
+            },
+            { error ->
+                Log.d(TAG, "Error: ${error.message}")
+            },
+            {
+                Log.d(TAG, "Completed")
+            }
+        )
+}
+
+fun concatOperator(){
+    val observable = Observable.concat(
+        getUser(),
+        getUserDetails()
+    )
+
+    observable
+        .subscribeOn(schedulers)
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(
+            { all ->
+                Log.d(TAG, all.toString())
+            },
+            { error ->
+                Log.d(TAG, "Error: ${error.message}")
+            },
+            {
+                Log.d(TAG, "Completed")
+            }
+        )
+}
+
+fun startWithOperator() {
+    val defaultUser = User(0, "Default User", "default@example.com", 0)
+
+    val observable = Observable.fromIterable(userList).startWith(Observable.just(defaultUser))
+        observable.subscribeOn(schedulers)
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(
+            { user ->
+                Log.d(TAG, "User: ${user.name}, Email: ${user.email}, Age: ${user.age}")
+            },
+            { error ->
+                Log.d(TAG, "Error: ${error.message}")
+            },
+            {
+                Log.d(TAG, "Completed")
+            }
+        )
+}
+
+fun zipOperator() {
+
+    val userObservable = Observable.fromIterable(userList)
+    val userDetailsObservable = Observable.fromIterable(userDetailsList)
+
+    Observable.zip(
+        userObservable,
+        userDetailsObservable,
+        { user, userDetails ->
+            listOf(user, userDetails)
+        }
+    ).subscribeOn(schedulers)
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(
+            { combined ->
+                Log.d(TAG, "Combined: $combined")
+            },
+            { error ->
+                Log.d(TAG, "Error: ${error.message}")
+            },
+            {
+                Log.d(TAG, "Completed")
+            }
+        )
+
+}
+
+fun getUser():Observable<User>{
+    return Observable.fromIterable(userList)
+}
+
+fun getUserDetails():Observable<UserDetails>{
+    return Observable.fromIterable(userDetailsList)
 }
 
 fun fetchUser(id:Int):Observable<User>{
